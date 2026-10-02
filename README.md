@@ -16,7 +16,9 @@ The teammate considers it ready for deployment. Review the implementation across
 - Recover from transient failures within a bounded time. Permanent failures must remain visible to the caller. A failed or incomplete operation must not look like a successful empty inventory.
 - Connect to PostgreSQL on its configured port using TLS with server identity verification. Only this Lambda's security group should gain database access through the rules managed here.
 - Grant only the AWS and network access needed to collect inventory, access the database credentials, publish reports, and emit logs. Do not modify source objects.
-- Preserve existing reports when application infrastructure is retired; data deletion requires a separate explicit operation.
+- Keep reports for at least 90 days, including when application infrastructure is retired. Early data deletion requires a separate explicit operation.
+- Apply approved image and environment configuration updates through Terraform after the initial deployment.
+- Keep database password values out of Terraform state and deployment outputs; retrieve them only at runtime.
 
 ## Files
 
@@ -24,6 +26,7 @@ The teammate considers it ready for deployment. Review the implementation across
 |---|---|
 | [main.tf](main.tf) | Lambda, environment, report bucket, IAM |
 | [networking.tf](networking.tf) | VPC inputs and security group rules |
+| [operations.tf](operations.tf) | Storage lifecycle and operational outputs |
 | [app.py](app.py) | Inventory, database connection, transaction, publication, retries |
 | [schema.sql](schema.sql) | Existing database table |
 | [invoke.py](invoke.py) | Operator's synchronous invocation and retry logic |

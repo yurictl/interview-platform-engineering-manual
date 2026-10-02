@@ -75,13 +75,14 @@ resource "aws_iam_role_policy_attachment" "logs" {
 }
 
 resource "aws_lambda_function" "inventory" {
-  function_name = "interview-s3-inventory"
-  role          = aws_iam_role.inventory.arn
-  package_type  = "Image"
-  image_uri     = var.image_uri
-  architectures = ["x86_64"]
-  timeout       = 30
-  memory_size   = 256
+  function_name                  = "interview-s3-inventory"
+  role                           = aws_iam_role.inventory.arn
+  package_type                   = "Image"
+  image_uri                      = var.image_uri
+  architectures                  = ["x86_64"]
+  timeout                        = 30
+  memory_size                    = 256
+  reserved_concurrent_executions = 0
 
   vpc_config {
     subnet_ids         = var.private_subnet_ids
@@ -97,6 +98,10 @@ resource "aws_lambda_function" "inventory" {
       DB_PORT       = "3306"
       DB_SECRET_ARN = var.db_secret_arn
     }
+  }
+
+  lifecycle {
+    ignore_changes = [image_uri, environment]
   }
 
   depends_on = [
